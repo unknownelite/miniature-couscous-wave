@@ -1,0 +1,765 @@
+{% extends 'dashboard/base.html' %}
+{% block body_class %}dashboard-page{% endblock %}
+{% load static %}
+
+{% block dashboard_title %}Investment Plans{% endblock %}
+{{ investment.plan.name|default:"No Plan" }}
+{% block extra_head %}
+<style>
+/* Floating Dialog Styles */
+.floating-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    padding: 25px;
+    width: 90%;
+    max-width: 400px;
+    z-index: 1000;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+    border: 2px solid #ffd700;
+    display: none;
+    animation: fadeIn 0.3s ease-out forwards;
+}
+
+.floating-dialog.alert {
+    border-color: #dc3545;
+}
+
+.dialog-content {
+    text-align: center;
+    color: #e0e0e0;
+}
+
+.dialog-content h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.25rem;
+}
+
+.dialog-content h4.text-danger {
+    color: #dc3545;
+}
+
+.dialog-details {
+    margin: 20px 0;
+    text-align: left;
+    padding: 0 15px;
+    font-size: 0.95rem;
+}
+
+.dialog-details p {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.gold-text {
+    color: #ffd700;
+    font-weight: 600;
+}
+
+.text-danger {
+    color: #dc3545;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -55%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Plan Card Styles */
+.plans-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.plan-card {
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    padding: 30px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.plan-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, #ffd700, #b8860b);
+}
+
+.plan-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.plan-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.plan-header h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.plan-price {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.plan-features {
+    margin-bottom: 30px;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    color: #e0e0e0;
+}
+
+.feature i {
+    margin-right: 10px;
+    font-size: 1.2rem;
+    color: #ffd700;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.btn-gold {
+    background-color: #ffd700;
+    color: #121212;
+}
+
+.btn-gold:hover {
+    background-color: #b8860b;
+    color: white;
+}
+
+.btn-outline-gold {
+    border-color: #ffd700;
+    color: #ffd700;
+    background-color: transparent;
+}
+
+.btn-outline-gold:hover {
+    background-color: #ffd700;
+    color: #121212;
+}
+
+/* Investment Card Styles */
+.investment-card {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 3px solid #ffd700;
+}
+
+.investment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.investment-name {
+    font-weight: 600;
+    color: #fff;
+}
+
+.investment-amount {
+    color: #ffd700;
+    font-weight: 600;
+}
+
+.investment-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    font-size: 0.9rem;
+}
+
+.detail-item span:first-child {
+    color: #aaa;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.progress-bar {
+    height: 5px;
+    background-color: #333;
+    border-radius: 5px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background-color: #ffd700;
+    border-radius: 5px;
+}
+
+/* Balance Cards */
+.balance-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.balance-card {
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.balance-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, #ffd700, #b8860b);
+}
+
+.balance-amount {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+{% comment %} /* Responsive Styles */
+@media (max-width: 768px) {
+    .plans-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .balance-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .investment-details {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .dialog-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+} {% endcomment %}
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .plans-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .balance-cards {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .investment-details {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    
+    .dialog-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .plan-card {
+        padding: 20px;
+    }
+    
+    .plan-header h3 {
+        font-size: 1.3rem;
+    }
+    
+    .plan-price {
+        font-size: 1.6rem;
+    }
+    
+    .balance-amount {
+        font-size: 1.4rem;
+    }
+}
+
+/* Extra Small Mobile (300px and below) */
+@media (max-width: 350px) {
+    .floating-dialog {
+        padding: 15px;
+        width: 95%;
+    }
+    
+    .dialog-content h4 {
+        font-size: 1.1rem;
+    }
+    
+    .dialog-details {
+        padding: 0 5px;
+        font-size: 0.85rem;
+    }
+    
+    .plans-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .plan-card {
+        padding: 15px;
+    }
+    
+    .plan-header {
+        margin-bottom: 20px;
+    }
+    
+    .plan-header h3 {
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+    }
+    
+    .plan-price {
+        font-size: 1.4rem;
+    }
+    
+    .plan-features {
+        margin-bottom: 20px;
+    }
+    
+    .feature {
+        margin-bottom: 10px;
+        font-size: 0.85rem;
+    }
+    
+    .feature i {
+        font-size: 1rem;
+        margin-right: 8px;
+    }
+    
+    .btn {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .balance-cards {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .balance-card {
+        padding: 15px;
+    }
+    
+    .balance-card h4 {
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+    
+    .balance-amount {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+    
+    .balance-card small {
+        font-size: 0.7rem;
+    }
+    
+    .investment-card {
+        padding: 12px;
+    }
+    
+    .investment-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .investment-name,
+    .investment-amount {
+        font-size: 0.9rem;
+    }
+    
+    .investment-details {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        font-size: 0.8rem;
+    }
+    
+    .detail-item span:first-child {
+        font-size: 0.75rem;
+    }
+    
+    .progress-bar {
+        margin-top: 12px;
+    }
+}
+
+/* Ultra Small Mobile (280px and below) */
+@media (max-width: 300px) {
+    .floating-dialog {
+        padding: 12px;
+        width: 90%;
+    }
+    
+    .dialog-content h4 {
+        font-size: 1rem;
+        margin-bottom: 12px;
+    }
+    
+    .dialog-details {
+        margin: 15px 0;
+        padding: 0;
+        font-size: 0.8rem;
+    }
+    
+    .dialog-buttons {
+        gap: 8px;
+    }
+    
+    .btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .plan-card {
+        padding: 12px;
+    }
+    
+    .plan-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .plan-price {
+        font-size: 1.3rem;
+    }
+    
+    .feature {
+        font-size: 0.8rem;
+        margin-bottom: 8px;
+    }
+    
+    .balance-card {
+        padding: 12px;
+    }
+    
+    .balance-card h4 {
+        font-size: 0.85rem;
+    }
+    
+    .balance-amount {
+        font-size: 1.1rem;
+    }
+    
+    .balance-card small {
+        font-size: 0.65rem;
+    }
+    
+    .investment-card {
+        padding: 10px;
+    }
+    
+    .investment-details {
+        font-size: 0.75rem;
+    }
+    
+    .detail-item span:first-child {
+        font-size: 0.7rem;
+    }
+}
+</style>
+{% endblock %}
+{% block dashboard_content %}
+<div class="dashboard-card">
+    <div class="card-header">
+        <h3>Available Investment Plans</h3>
+    </div>
+    
+    <div class="balance-cards">
+        <div class="balance-card">
+            <h4>Available Balance</h4>
+            <div class="balance-amount gold-text">${{ user.available_balance|floatformat:2 }}</div>
+            <a href="{% url 'fund' %}" class="btn btn-outline-gold">Fund Account</a>
+        </div>
+        <div class="balance-card">
+            <h4>Invested Amount</h4>
+            <div class="balance-amount gold-text">${{ user.total_invested|floatformat:2 }}</div>
+        </div>
+        <div class="balance-card">
+            <h4>Mining Points</h4>
+            <div class="balance-amount gold-text">{{ user.mining_points }}</div>
+            <small>Next conversion: {{ next_conversion_date|date:"M d, Y" }}</small>
+        </div>
+    </div>
+    
+    <div class="plans-grid">
+        {% for plan in plans %}
+        <div class="plan-card" id="plan-{{ plan.id }}" 
+             data-daily-percentage="{{ plan.daily_percentage }}" 
+             data-mining-rate="{{ plan.mining_points_rate }}" 
+             data-min-amount="{{ plan.min_amount }}">
+            <div class="plan-header">
+                <h3>{{ plan.name }}</h3>
+                <div class="plan-price gold-text">${{ plan.min_amount|floatformat:2 }}+</div>
+            </div>
+            <div class="plan-features">
+                <div class="feature">
+                    <i class="fas fa-check gold-text"></i>
+                    <span>{{ plan.daily_percentage }}% Daily Interest</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-check gold-text"></i>
+                    <span>{{ plan.mining_points_rate }} Mining Points per $</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-check gold-text"></i>
+                    <span>28 Days Investment Cycle</span>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-check gold-text"></i>
+                    <span>Withdraw Anytime After 28 Days</span>
+                </div>
+            </div>
+            <button class="btn btn-gold invest-btn" data-plan-id="{{ plan.id }}">Invest Now</button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="dashboard-card">
+    <div class="card-header">
+        <h3>Active Investments</h3>
+    </div>
+    
+    {% if investments %}
+        {% for investment in investments %}
+        <div class="investment-card">
+            <div class="investment-header">
+                <div class="investment-name">{{ investment.plan.name }}</div>
+                <div class="investment-amount">${{ investment.amount|floatformat:2 }}</div>
+            </div>
+            <div class="investment-details">
+                <div class="detail-item">
+                    <span>Start Date</span>
+                    <span>{{ investment.date_invested|date:"M d, Y" }}</span>
+                </div>
+                <div class="detail-item">
+                    <span>Daily Interest</span>
+                    <span>${{ investment.daily_interest|floatformat:2 }}</span>
+                </div>
+                {% comment %} <div class="detail-item">
+                    <span>Status</span>
+                    <span>
+                        {% if investment.can_withdraw %}
+                        <span class="gold-text">Withdrawal Available</span>
+                        {% else %}
+                        <span class="text-muted">Locked ({{ investment.days_remaining }} days remaining)</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <span>Total Earned</span>
+                    <span class="gold-text">${{ investment.total_earned|floatformat:2 }}</span>
+                </div> {% endcomment %}
+            </div>
+            <div class="progress-bar">
+                <div class="progress" style="width: {{ investment.progress }}%"></div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>You don't have any active investments yet.</p>
+    {% endif %}
+</div>
+<form method="post" id="investmentForm" style="display: none;" action="{% url 'invest' %}">
+    {% csrf_token %}
+    <input type="hidden" name="plan_id" id="plan_id_input" value="">
+</form>
+<!-- Floating Confirmation Dialog -->
+    <div class="floating-dialog" id="confirmDialog">
+        <div class="dialog-content">
+            <h4>Confirm Investment</h4>
+            <p>Invest <span id="confirmAmount" class="gold-text"></span> in <span id="confirmPlan" class="gold-text"></span></p>
+            <div class="dialog-details">
+                <p><i class="fas fa-coins gold-text"></i> <span id="confirmPoints"></span> Mining Points</p>
+                <p><i class="fas fa-percentage gold-text"></i> <span id="confirmInterest"></span> Daily Interest</p>
+            </div>
+            <div class="dialog-buttons">
+                <button class="btn btn-outline-gold" id="cancelConfirm">Cancel</button>
+                <button class="btn btn-gold" id="submitConfirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insufficient Balance Dialog -->
+    <div class="floating-dialog alert" id="insufficientDialog">
+        <div class="dialog-content">
+            <h4><i class="fas fa-exclamation-triangle text-danger"></i> Insufficient Balance</h4>
+            <p>You need <span id="requiredAmount" class="gold-text"></span></p>
+            <p>Available: <span id="currentBalance" class="gold-text"></span></p>
+            <div class="dialog-buttons">
+                <button class="btn btn-outline-gold" id="cancelFund">Cancel</button>
+                <a href="{% url 'fund' %}" class="btn btn-gold">Fund Wallet</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded'); // Debug log
+    
+    const confirmDialog = document.getElementById('confirmDialog');
+    const insufficientDialog = document.getElementById('insufficientDialog');
+    const investmentForm = document.getElementById('investmentForm');
+    const planIdInput = document.getElementById('plan_id_input');
+    
+    // Debug: Check if elements exist
+    console.log('Elements:', {
+        confirmDialog,
+        insufficientDialog,
+        investmentForm,
+        planIdInput
+    });
+    
+    // Hide dialogs initially
+    if (confirmDialog) confirmDialog.style.display = 'none';
+    if (insufficientDialog) insufficientDialog.style.display = 'none';
+
+    function handleInvestment(planId) {
+        console.log('Handling investment for plan:', planId);
+        
+        const planCard = document.getElementById(`plan-${planId}`);
+        if (!planCard) {
+            console.error('Plan card not found');
+            return;
+        }
+        
+        const planName = planCard.querySelector('h3').textContent;
+        const minAmount = parseFloat(planCard.dataset.minAmount);
+        const dailyPercent = parseFloat(planCard.dataset.dailyPercentage);
+        const miningRate = parseFloat(planCard.dataset.miningRate);
+        const availableBalance = parseFloat("{{ user.available_balance }}");
+        
+        console.log('Plan details:', {
+            planName,
+            minAmount,
+            dailyPercent,
+            miningRate,
+            availableBalance
+        });
+
+        if (availableBalance < minAmount) {
+            console.log('Insufficient balance');
+            document.getElementById('requiredAmount').textContent = `$${minAmount.toFixed(2)}`;
+            document.getElementById('currentBalance').textContent = `$${availableBalance.toFixed(2)}`;
+            insufficientDialog.style.display = 'block';
+            return;
+        }
+        
+        console.log('Showing confirmation dialog');
+        document.getElementById('confirmPlan').textContent = planName;
+        document.getElementById('confirmAmount').textContent = `$${minAmount.toFixed(2)}`;
+        document.getElementById('confirmPoints').textContent = `${Math.floor(minAmount * miningRate)}`;
+        document.getElementById('confirmInterest').textContent = `$${(minAmount * dailyPercent / 100).toFixed(2)}`;
+        
+        // Update the hidden form field
+        if (planIdInput) {
+            planIdInput.value = planId;
+        } else {
+            console.error('Plan ID input not found');
+        }
+        
+        confirmDialog.style.display = 'block';
+    }
+
+    // Handle invest button clicks
+    document.querySelectorAll('.invest-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const planId = this.getAttribute('data-plan-id');
+            console.log('Invest button clicked for plan:', planId);
+            handleInvestment(planId);
+        });
+    });
+
+    // Close handlers
+    if (document.getElementById('cancelConfirm')) {
+        document.getElementById('cancelConfirm').addEventListener('click', function() {
+            confirmDialog.style.display = 'none';
+        });
+    }
+    
+    if (document.getElementById('cancelFund')) {
+        document.getElementById('cancelFund').addEventListener('click', function() {
+            insufficientDialog.style.display = 'none';
+        });
+    }
+
+    // Form submission handler
+    if (document.getElementById('submitConfirm')) {
+        document.getElementById('submitConfirm').addEventListener('click', function() {
+            console.log('Submitting investment form');
+            if (investmentForm) {
+                investmentForm.submit();
+            } else {
+                console.error('Investment form not found');
+            }
+        });
+    }
+
+    // Close dialog when clicking outside
+    document.addEventListener('click', function(e) {
+        if (e.target === confirmDialog) {
+            confirmDialog.style.display = 'none';
+        }
+        if (e.target === insufficientDialog) {
+            insufficientDialog.style.display = 'none';
+        }
+    });
+});
+</script>
+
+{% endblock %}

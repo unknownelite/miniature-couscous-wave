@@ -1,0 +1,1009 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fund Account - Golden Crypto Investments</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+    /* Base Styles */
+    :root {
+        --primary-dark: #121212;
+        --secondary-dark: #1a1a1a;
+        --text-color: #e0e0e0;
+        --gold: #ffd700;
+        --dark-gold: #b8860b;
+        --light-gold: #fffacd;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --info: #17a2b8;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: 'Montserrat', sans-serif;
+        background-color: var(--primary-dark);
+        color: var(--text-color);
+        line-height: 1.6;
+        overflow-x: hidden;
+    }
+    
+    /* Dashboard Container */
+    .dashboard-container {
+        display: flex;
+        min-height: 100vh;
+    }
+    
+    /* Mobile Menu Button - Replace the existing mobile menu button styles */
+.mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background-color: var(--gold);
+    color: var(--primary-dark);
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 1rem;
+    z-index: 100;
+    cursor: pointer;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Show menu button on mobile when sidebar is closed */
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block;
+    }
+    
+    /* Hide menu button when sidebar is active */
+    .dashboard-sidebar.active + .sidebar-overlay + .dashboard-main .mobile-menu-btn {
+        display: none;
+    }
+}
+    
+    /* Sidebar Styles */
+    .dashboard-sidebar {
+        position: fixed;
+        left: 0;
+        width: 250px;
+        height: 100vh;
+        background-color: var(--secondary-dark);
+        z-index: 10;
+        transition: transform 0.3s ease;
+    }
+    
+    .sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid #333;
+    }
+    
+    .user-profile {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .user-profile img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--gold);
+    }
+    
+    .sidebar-nav {
+        padding: 15px 0;
+        overflow-y: auto;
+        height: calc(100vh - 120px);
+    }
+    
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: var(--text-color);
+        text-decoration: none;
+        gap: 15px;
+        font-size: 0.95rem;
+    }
+    
+    .nav-item:hover {
+        background-color: rgba(255, 215, 0, 0.1);
+        color: var(--gold);
+    }
+    
+    .nav-item.active {
+        background-color: rgba(255, 215, 0, 0.2);
+        border-left: 3px solid var(--gold);
+    }
+    
+    /* Main Content Area */
+    .dashboard-main {
+        flex: 1;
+        margin-left: 250px;
+        background-color: var(--primary-dark);
+        min-width: 0;
+    }
+    
+    .dashboard-header {
+        padding: 15px 20px;
+        background-color: var(--secondary-dark);
+        border-bottom: 1px solid #333;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .header-title {
+        margin-left: 50px;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+    
+    .dashboard-content {
+        padding: 15px;
+    }
+    
+    /* Card Styles */
+    .dashboard-card {
+        background-color: var(--secondary-dark);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #333;
+    }
+    
+    .card-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    /* Form Styles */
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        background-color: #333;
+        border: 1px solid #444;
+        border-radius: 5px;
+        color: var(--text-color);
+        font-size: 0.95rem;
+    }
+    
+    .text-muted {
+        color: #aaa;
+        font-size: 0.85rem;
+        display: block;
+        margin-top: 5px;
+    }
+    
+    /* Button Styles */
+    .btn {
+        display: inline-block;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 500;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+        text-align: center;
+    }
+    
+    .btn-gold {
+        background-color: var(--gold);
+        color: var(--primary-dark);
+    }
+    
+    .btn-gold:hover {
+        background-color: var(--dark-gold);
+        color: white;
+    }
+    
+    .btn-outline-gold {
+        border-color: var(--gold);
+        color: var(--gold);
+        background-color: transparent;
+    }
+    
+    .btn-outline-gold:hover {
+        background-color: var(--gold);
+        color: var(--primary-dark);
+    }
+    
+    /* Balance Cards */
+    .balance-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .balance-card {
+        background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+        border-radius: 8px;
+        padding: 15px;
+        border: 1px solid rgba(255, 215, 0, 0.2);
+    }
+    
+    .balance-card h4 {
+        font-size: 0.9rem;
+        color: #aaa;
+        margin-bottom: 8px;
+    }
+    
+    .balance-amount {
+        font-size: 1.4rem;
+        font-weight: 700;
+    }
+    
+    .gold-text {
+        color: var(--gold);
+    }
+    
+    /* Table Styles */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 300px;
+    }
+    
+    .table th, .table td {
+        padding: 10px 8px;
+        text-align: left;
+        border-bottom: 1px solid #333;
+        font-size: 0.9rem;
+    }
+    
+    .table th {
+        font-weight: 600;
+        color: var(--gold);
+        background-color: rgba(255, 215, 0, 0.05);
+        white-space: nowrap;
+    }
+    
+    .table tr:hover {
+        background-color: rgba(255, 255, 255, 0.02);
+    }
+    
+    /* Status Badges */
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        min-width: 80px;
+        text-align: center;
+    }
+    
+    .status-pending {
+        background-color: rgba(255, 193, 7, 0.2);
+        color: var(--warning);
+    }
+    
+    .status-successful {
+        background-color: rgba(40, 167, 69, 0.2);
+        color: var(--success);
+    }
+    
+    .status-failed {
+        background-color: rgba(220, 53, 69, 0.2);
+        color: var(--danger);
+    }
+    
+    /* Floating Dialogs */
+    .floating-dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: var(--secondary-dark);
+        border-radius: 8px;
+        padding: 15px;
+        width: calc(100% - 30px);
+        max-width: 320px;
+        z-index: 1000;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        border: 2px solid var(--gold);
+        display: none;
+    }
+    
+    .error-dialog {
+        border-color: var(--danger);
+    }
+    
+    .dialog-content {
+        text-align: center;
+    }
+    
+    .dialog-content h4 {
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+    }
+    
+    .dialog-content .text-danger {
+        color: var(--danger);
+    }
+    
+    .wallet-qr img {
+        max-width: 160px;
+        height: auto;
+        border: 1px solid #333;
+        padding: 8px;
+        background-color: white;
+        margin: 0 auto 15px;
+        display: block;
+    }
+    
+    .wallet-address-container {
+        position: relative;
+        margin: 0 0 15px;
+    }
+    
+    .wallet-address {
+        background-color: #333;
+        padding: 10px 35px 10px 12px;
+        border-radius: 5px;
+        word-break: break-all;
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    
+    .copy-address {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        transform: translateY(-50%);
+        background-color: rgba(255, 215, 0, 0.2);
+        color: var(--gold);
+        border: none;
+        padding: 4px 8px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 0.8rem;
+    }
+    
+    .copy-address:hover {
+        background-color: rgba(255, 215, 0, 0.3);
+    }
+    
+    .dialog-details {
+        margin: 15px 0;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    .dialog-details p {
+        margin-bottom: 8px;
+    }
+    
+    .dialog-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    
+    /* Overlay */
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 5;
+        display: none;
+        backdrop-filter: blur(2px);
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+    
+    /* Mobile Styles */
+    @media (max-width: 768px) {
+        .mobile-menu-btn {
+            display: block;
+        }
+        
+        .dashboard-sidebar {
+            transform: translateX(-100%);
+            width: 280px;
+        }
+        
+        .dashboard-sidebar.active {
+            transform: translateX(0);
+        }
+        
+        .dashboard-main {
+            margin-left: 0;
+        }
+        
+        .sidebar-overlay.active {
+            display: block;
+        }
+        
+        .dashboard-header {
+            padding: 12px 15px;
+        }
+        
+        .dashboard-content {
+            padding: 12px;
+        }
+        
+        .dashboard-card {
+            padding: 12px;
+        }
+        
+        .balance-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 400px) {
+        .dashboard-sidebar {
+            width: 260px;
+        }
+        
+        .nav-item {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .floating-dialog {
+            max-width: 300px;
+            padding: 12px;
+        }
+        
+        .wallet-qr img {
+            max-width: 140px;
+        }
+        
+        .dialog-buttons {
+            flex-direction: column;
+        }
+        
+        .dialog-buttons .btn {
+            width: 100%;
+        }
+    }
+    
+    @media (max-width: 300px) {
+        .dashboard-sidebar {
+            width: 240px;
+        }
+        
+        .user-profile {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .user-profile img {
+            margin-bottom: 8px;
+        }
+        
+        .nav-item {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+        
+        .dashboard-header {
+            padding: 10px 12px;
+        }
+        
+        .header-title {
+            font-size: 1rem;
+        }
+        
+        .dashboard-content {
+            padding: 10px;
+        }
+        
+        .dashboard-card {
+            padding: 10px;
+        }
+        
+        .form-control {
+            padding: 8px 10px;
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+        
+        .balance-card {
+            padding: 12px;
+        }
+        
+        .balance-amount {
+            font-size: 1.2rem;
+        }
+        
+        .floating-dialog {
+            max-width: 260px;
+            padding: 10px;
+        }
+        
+        .wallet-qr img {
+            max-width: 120px;
+            padding: 6px;
+        }
+        
+        .wallet-address {
+            font-size: 0.8rem;
+            padding: 8px 30px 8px 10px;
+        }
+        
+        .copy-address {
+            padding: 3px 6px;
+            font-size: 0.75rem;
+        }
+        
+        .dialog-content h4 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+        }
+        
+        .dialog-details {
+            font-size: 0.85rem;
+            margin: 12px 0;
+        }
+        
+        .table th, .table td {
+            padding: 8px 6px;
+            font-size: 0.8rem;
+        }
+        
+        .status-badge {
+            padding: 3px 6px;
+            font-size: 0.75rem;
+            min-width: 70px;
+        }
+    }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <button class="mobile-menu-btn" id="mobile-menu-btn">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Sidebar -->
+    <div class="dashboard-sidebar" id="dashboard-sidebar">
+        <div class="sidebar-header">
+            <div class="user-profile">
+                {% if user.profile_pic %}
+                <img src="{{ user.profile_pic.url }}?{% now 'U' %}{% if request.session.profile_pic_timestamp %}_{{ request.session.profile_pic_timestamp }}{% endif %}" alt="{{ user.username }}">
+                {% else %}
+                <img src="{% static 'images/default-profile.png' %}?{% now 'U' %}" alt="{{ user.username }}">
+                {% endif %}
+        <div class="user-info">
+                    <h4>{{ user.username }}</h4>
+                    <div class="user-plan gold-text">
+                        {% if user.total_invested >= 10000 %}Diamond
+                        {% elif user.total_invested >= 5000 %}Gold
+                        {% elif user.total_invested >= 1000 %}Silver
+                        {% elif user.total_invested >= 500 %}Bronze
+                        {% else %}Starter{% endif %} Investor
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="{% url 'dashboard' %}" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{% url 'kyc' %}" class="nav-item">
+                <i class="fas fa-id-card"></i>
+                <span>KYC Verification</span>
+            </a>
+            <a href="{% url 'transactions' %}" class="nav-item">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Transactions</span>
+            </a>
+            <a href="{% url 'fund' %}" class="nav-item active">
+                <i class="fas fa-credit-card"></i>
+                <span>Fund Account</span>
+            </a>
+            <a href="{% url 'withdraw' %}" class="nav-item">
+                <i class="fas fa-wallet"></i>
+                <span>Withdraw</span>
+            </a>
+            <a href="{% url 'invest' %}" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Invest</span>
+            </a>
+            <a href="{% url 'profile' %}" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+            <a href="{% url 'settings' %}" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+            <a href="{% url 'logout' %}" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    
+    <!-- Main Content -->
+    <div class="dashboard-main" id="dashboard-main">
+        <header class="dashboard-header">
+            <div class="header-title">
+                Fund Account
+            </div>
+            <div class="header-actions">
+                <div class="notifications">
+                    
+                </div>
+            </div>
+        </header>
+        
+        <main class="dashboard-content">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Deposit Funds</h3>
+                </div>
+                
+                <div class="balance-cards">
+                    <div class="balance-card">
+                        <h4>Available Balance</h4>
+                        <div class="balance-amount gold-text">${{ user.available_balance|floatformat:2 }}</div>
+                    </div>
+                    <div class="balance-card">
+                        <h4>Total Deposited</h4>
+                        <div class="balance-amount gold-text">${{ total_deposited|floatformat:2 }}</div>
+                    </div>
+                </div>
+                
+                <form id="depositForm" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>Amount (USD)</label>
+                        <input type="number" name="amount" class="form-control" min="500" step="0.01" required>
+                        <small class="text-muted">Minimum deposit: $500.00</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select name="currency" class="form-control" required id="payment-method">
+                            <option value="">Select Payment Method</option>
+                            <option value="usdt">USDT (TRC20)</option>
+                            <option value="btc">Bitcoin (BTC)</option>
+                            <option value="eth">Ethereum (ETH)</option>
+                        </select>
+                    </div>
+                    <button type="button" id="proceedToPayment" class="btn btn-gold">Proceed to Payment</button>
+                </form>
+            </div>
+            
+            <!-- Recent Deposits Table -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Recent Deposits</h3>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for deposit in deposits %}
+                            <tr>
+                                <td>{{ deposit.date|date:"M d, Y" }}</td>
+                                <td>${{ deposit.amount|floatformat:2 }}</td>
+                                <td>{{ deposit.get_currency_display }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ deposit.status|lower }}">
+                                        {{ deposit.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" style="text-align: center;">No deposit history yet</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Payment Instructions Modal -->
+            <div class="floating-dialog" id="paymentDialog">
+                <div class="dialog-content">
+                    <h4>Complete Your Deposit</h4>
+                    <div class="wallet-qr">
+                        <img id="modalQrCode" src="" alt="QR Code">
+                    </div>
+                    <div class="wallet-address-container">
+                        <div class="wallet-address" id="modalWalletAddress"></div>
+                        <button class="copy-address" id="copyAddressBtn">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="dialog-details">
+                        <p>Send exactly <span id="modalPaymentAmount" class="gold-text"></span> to the address above.</p>
+                        <p>Your deposit will be credited after 3 network confirmations.</p>
+                    </div>
+                    <div class="dialog-buttons">
+                        <button type="button" class="btn btn-outline-gold" id="cancelPaymentBtn">Cancel</button>
+                        <button type="button" class="btn btn-gold" id="confirmPaymentBtn">I've Made the Payment</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Error Dialog -->
+            <div class="floating-dialog error-dialog" id="errorDialog">
+                <div class="dialog-content">
+                    <h4 class="text-danger"><i class="fas fa-exclamation-circle"></i> Error</h4>
+                    <div class="dialog-details" id="errorMessage">
+                        <!-- Error message will be inserted here -->
+                    </div>
+                    <div class="dialog-buttons">
+                        <button type="button" class="btn btn-outline-gold" id="closeErrorBtn">OK</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebar = document.getElementById('dashboard-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    function updateMenuButtonVisibility() {
+        // Hide menu button when sidebar is active, show when inactive
+        if (sidebar.classList.contains('active')) {
+            mobileMenuBtn.style.display = 'none';
+        } else {
+            mobileMenuBtn.style.display = 'block';
+        }
+    }
+    
+    function toggleSidebar() {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : 'auto';
+        
+        // Update button visibility after toggle
+        updateMenuButtonVisibility();
+    }
+    
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', toggleSidebar);
+    }
+    
+    if (overlay) {
+        overlay.addEventListener('click', toggleSidebar);
+    }
+    
+    // Close sidebar when clicking on nav items (mobile only)
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                toggleSidebar();
+            }
+        });
+    });
+    
+    // Handle window resize
+    function handleResize() {
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            mobileMenuBtn.style.display = 'none'; // Hide on desktop
+        } else {
+            updateMenuButtonVisibility(); // Update visibility on mobile
+        }
+    }
+    
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Run on initial load
+});
+
+// Fund wallet functionality
+$(document).ready(function() {
+    // Wallet data from the server
+    const walletData = {
+        usdt: {
+            address: "{{ usdt_wallet.address|default:'' }}",
+            qr_code: "{{ usdt_wallet.qr_code.url|default:'' }}"
+        },
+        btc: {
+            address: "{{ btc_wallet.address|default:'' }}",
+            qr_code: "{{ btc_wallet.qr_code.url|default:'' }}"
+        },
+        eth: {
+            address: "{{ eth_wallet.address|default:'' }}",
+            qr_code: "{{ eth_wallet.qr_code.url|default:'' }}"
+        }
+    };
+
+    // Show error dialog
+    function showError(message) {
+        $('#errorMessage').html(message);
+        $('#errorDialog').css({
+            'display': 'flex',
+            'opacity': 0
+        }).animate({'opacity': 1}, 200);
+        $('body').css('overflow', 'hidden');
+    }
+
+    // Close error dialog
+    $('#closeErrorBtn').click(function() {
+        $('#errorDialog').fadeOut(200, function() {
+            $('body').css('overflow', 'auto');
+        });
+    });
+
+    // Proceed to payment button
+    $('#proceedToPayment').click(function() {
+        const amount = $('input[name="amount"]').val();
+        const currency = $('#payment-method').val();
+        
+        if (!amount) {
+            showError('<p>Please enter an amount to deposit.</p>');
+            return;
+        }
+        
+        if (!currency) {
+            showError('<p>Please select a payment method.</p>');
+            return;
+        }
+        
+        if (parseFloat(amount) < 500) {
+            showError('<p>Minimum deposit amount is $500.</p><p>Please enter a higher amount.</p>');
+            return;
+        }
+        
+        const wallet = walletData[currency];
+        if (!wallet || !wallet.address) {
+            showError('<p>Selected payment method is not available.</p><p>Please try another method.</p>');
+            return;
+        }
+        
+        // Update modal content
+        $('#modalPaymentAmount').text('$' + parseFloat(amount).toFixed(2));
+        $('#modalWalletAddress').text(wallet.address);
+        $('#modalQrCode').attr('src', wallet.qr_code);
+        
+        // Show modal
+        $('#paymentDialog').css({
+            'display': 'flex',
+            'opacity': 0
+        }).animate({'opacity': 1}, 200);
+        
+        // Prevent body scrolling
+        $('body').css('overflow', 'hidden');
+    });
+    
+    // Copy address button
+    $('#copyAddressBtn').click(function() {
+        const address = $('#modalWalletAddress').text();
+        const $btn = $(this);
+        
+        navigator.clipboard.writeText(address).then(function() {
+            $btn.html('<i class="fas fa-check"></i>');
+            setTimeout(() => $btn.html('<i class="fas fa-copy"></i>'), 2000);
+        }).catch(function() {
+            // Fallback for browsers without clipboard API
+            const textarea = document.createElement('textarea');
+            textarea.value = address;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            $btn.html('<i class="fas fa-check"></i>');
+            setTimeout(() => $btn.html('<i class="fas fa-copy"></i>'), 2000);
+        });
+    });
+    
+    // Cancel payment button
+    $('#cancelPaymentBtn').click(function() {
+        $('#paymentDialog').fadeOut(200, function() {
+            $('body').css('overflow', 'auto');
+        });
+    });
+    
+    // Confirm payment button
+    $('#confirmPaymentBtn').click(function() {
+        const amount = $('input[name="amount"]').val();
+        
+        // Show processing message
+        $('#paymentDialog .dialog-content').html(`
+            <div style="text-align: center; padding: 15px;">
+                <h4>Processing Your Payment</h4>
+                <div style="margin: 15px auto; width: 40px; height: 40px; border: 4px solid rgba(255,215,0,0.3); 
+                     border-radius: 50%; border-top-color: var(--gold); animation: spin 1s linear infinite;"></div>
+                <p>Your payment of $${parseFloat(amount).toFixed(2)} is being processed...</p>
+                <p>Payment will arrive within 10 minutes.</p>
+                <p>If exceeded, please contact support.</p>
+            </div>
+        `);
+        
+        // Submit form after delay
+        setTimeout(() => {
+            $('#depositForm').submit();
+        }, 2000);
+    });
+    
+    // Close modals when clicking outside
+    $(document).on('click', function(e) {
+        if ($(e.target).hasClass('floating-dialog')) {
+            if ($('#paymentDialog').is(':visible')) {
+                $('#paymentDialog').fadeOut(200, function() {
+                    $('body').css('overflow', 'auto');
+                });
+            }
+            if ($('#errorDialog').is(':visible')) {
+                $('#errorDialog').fadeOut(200, function() {
+                    $('body').css('overflow', 'auto');
+                });
+            }
+        }
+    });
+});
+
+// Add spinner animation
+document.head.insertAdjacentHTML('beforeend', '<style>@keyframes spin {to {transform: rotate(360deg);}}</style>');
+
+</script>
+</body>
+</html>

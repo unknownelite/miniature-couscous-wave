@@ -1,0 +1,353 @@
+{% extends 'dashboard/base.html' %}
+{% block body_class %}dashboard-page{% endblock %}
+{% load static %}
+
+{% block dashboard_title %}Transaction History{% endblock %}
+
+{% block dashboard_content %}
+{% block css %}
+<style>
+/* Mobile Responsive Styles (320px and up) */
+@media only screen and (max-width: 767px) {
+    /* General Layout Adjustments */
+    .dashboard-content {
+        padding: 10px;
+    }
+    
+    /* Card Layout */
+    .dashboard-card {
+        margin-bottom: 20px;
+        padding: 15px;
+    }
+    
+    /* Table Transformations */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    thead {
+        display: none;
+    }
+    tr {
+        display: block;
+        margin-bottom: 15px;
+        border: 1px solid rgba(255, 215, 0, 0.2);
+        border-radius: 5px;
+        padding: 10px;
+    }
+    td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 5px;
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    td:before {
+        content: attr(data-label);
+        font-weight: bold;
+        margin-right: 10px;
+        color: #ffd700;
+        font-size: 0.85rem;
+    }
+    td:last-child {
+        border-bottom: none;
+    }
+    
+    /* Status Badges */
+    .status-badge {
+        padding: 3px 8px;
+        font-size: 0.75rem;
+    }
+    
+    /* Filter Form */
+    .filter-form .form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .form-group {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+    .form-control {
+        width: 100%;
+        padding: 8px;
+    }
+    
+    /* Pagination */
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+    }
+    .page-link {
+        padding: 5px 8px;
+        font-size: 0.85rem;
+    }
+    .current-page {
+        width: 100%;
+        text-align: center;
+        margin: 5px 0;
+    }
+    
+    /* Buttons */
+    .btn {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+    .filter-form .form-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .filter-form .btn {
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
+/* Very Small Devices (320px and below) */
+@media only screen and (max-width: 320px) {
+    /* Adjust table cells */
+    td {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 8px 0;
+    }
+    td:before {
+        margin-bottom: 3px;
+    }
+    
+    /* Form adjustments */
+    .filter-form .form-group {
+        flex-direction: column;
+    }
+    .filter-form .btn {
+        width: 100%;
+    }
+    
+    /* Hide less important elements */
+    .transaction-description {
+        display: none;
+    }
+}
+
+/* Add data labels for mobile table */
+@media only screen and (max-width: 767px) {
+    td:nth-of-type(1):before { content: "Date"; }
+    td:nth-of-type(2):before { content: "Type"; }
+    td:nth-of-type(3):before { content: "Amount"; }
+    td:nth-of-type(4):before { content: "Description"; }
+    td:nth-of-type(5):before { content: "Status"; }
+}
+
+/* Utility Classes for Mobile */
+@media only screen and (max-width: 767px) {
+    .mobile-stack {
+        flex-direction: column !important;
+    }
+    .mobile-full-width {
+        width: 100% !important;
+    }
+    .mobile-text-center {
+        text-align: center !important;
+    }
+    .mobile-hide {
+        display: none !important;
+    }
+    .mobile-mt-10 {
+        margin-top: 10px !important;
+    }
+    .mobile-mb-10 {
+        margin-bottom: 10px !important;
+    }
+}
+</style>
+{% endblock %}
+<div class="dashboard-card">
+    <div class="card-header">
+        <h3>All Transactions</h3>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.date|date:"M d, Y H:i" }}</td>
+                    <td>{{ transaction.get_transaction_type_display }}</td>
+                    <td>
+                        {% if transaction.transaction_type == 'deposit' or transaction.transaction_type == 'interest' or transaction.transaction_type == 'mining' %}
+                        <span class="text-success">+ ${{ transaction.amount|floatformat:2 }}</span>
+                        {% else %}
+                        <span class="text-danger">- ${{ transaction.amount|floatformat:2 }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ transaction.description }}</td>
+                    <td>
+                        <span class="status-badge status-{{ transaction.status }}">
+                            {{ transaction.get_status_display }}
+                        </span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">No transactions yet</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if transactions.has_other_pages %}
+    <div class="pagination">
+        {% if transactions.has_previous %}
+        <a href="?page=1" class="page-link">&laquo; First</a>
+        <a href="?page={{ transactions.previous_page_number }}" class="page-link">Previous</a>
+        {% endif %}
+        
+        <span class="current-page">
+            Page {{ transactions.number }} of {{ transactions.paginator.num_pages }}
+        </span>
+        
+        {% if transactions.has_next %}
+        <a href="?page={{ transactions.next_page_number }}" class="page-link">Next</a>
+        <a href="?page={{ transactions.paginator.num_pages }}" class="page-link">Last &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% comment %} <div class="dashboard-card">
+    <div class="card-header">
+        <h3>Transaction Filters</h3>
+    </div>
+    
+    <form method="GET" class="filter-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Type</label>
+                <select name="type" class="form-control">
+                    <option value="">All Types</option>
+                    <option value="deposit" {% if request.GET.type == 'deposit' %}selected{% endif %}>Deposit</option>
+                    <option value="withdrawal" {% if request.GET.type == 'withdrawal' %}selected{% endif %}>Withdrawal</option>
+                    <option value="interest" {% if request.GET.type == 'interest' %}selected{% endif %}>Interest</option>
+                    <option value="mining" {% if request.GET.type == 'mining' %}selected{% endif %}>Mining Points</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Status</label>
+                <select name="status" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="successful" {% if request.GET.status == 'successful' %}selected{% endif %}>Successful</option>
+                    <option value="failed" {% if request.GET.status == 'failed' %}selected{% endif %}>Failed</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Date From</label>
+                <input type="date" name="date_from" class="form-control" value="{{ request.GET.date_from }}">
+            </div>
+            
+            <div class="form-group">
+                <label>Date To</label>
+                <input type="date" name="date_to" class="form-control" value="{{ request.GET.date_to }}">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <button type="submit" class="btn btn-gold">Filter Transactions</button>
+            <a href="{% url 'transactions' %}" class="btn btn-outline-gold">Reset Filters</a>
+        </div>
+    </form>
+</div> {% endcomment %}
+{%endblock%}
+{% block scripts%}
+<script>
+    // Counter animation
+    const counters = document.querySelectorAll('.stat-number');
+    const speed = 200;
+    
+    function animateCounters() {
+        counters.forEach(counter => {
+            const target = +counter.getAttribute('data-count');
+            const count = +counter.innerText;
+            const increment = target / speed;
+            
+            if (count < target) {
+                counter.innerText = Math.ceil(count + increment);
+                setTimeout(animateCounters, 1);
+            } else {
+                counter.innerText = target;
+            }
+        });
+    }
+    
+    // Start counter animation when section is in view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounters();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    document.querySelectorAll('.stat-item').forEach(item => {
+        observer.observe(item);
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    // Transform table for mobile
+    function adaptTableForMobile() {
+        if (window.innerWidth <= 767) {
+            const rows = document.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                cells.forEach((cell, index) => {
+                    cell.setAttribute('data-label', cell.parentNode.querySelector('th:nth-child(' + (index + 1) + ')').textContent);
+                });
+            });
+        }
+    }
+
+    // Initial adaptation
+    adaptTableForMobile();
+    
+    // Re-adapt on window resize
+    window.addEventListener('resize', adaptTableForMobile);
+    
+    // Date input placeholder for mobile
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+    dateInputs.forEach(input => {
+        if (!input.value) {
+            input.type = 'text';
+            input.placeholder = 'YYYY-MM-DD';
+            input.addEventListener('focus', function() {
+                this.type = 'date';
+            });
+        }
+    });
+});
+</script>
+{% endblock %}

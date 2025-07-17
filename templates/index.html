@@ -1,0 +1,418 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<header class="hero">
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <span class="gold-text">Golden</span>Crypto
+            </div>
+            <div class="nav-links">
+                <a href="#about">About</a>
+                <a href="#plans">Plans</a>
+                <a href="#how-it-works">How It Works</a>
+                <div class="language-switcher">
+                    <select id="language-select">
+                        {% comment %} <option value="en">English</option>
+                        <option value="es">Español</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="zh">中文</option> {% endcomment %}
+                    </select>
+                </div>
+                <div class="auth-buttons">
+                    <a href="{% url 'register' %}" class="btn btn-outline-gold">Register</a>
+                    <a href="{% url 'login' %}" class="btn btn-gold">Login</a>
+                </div>
+            </div>
+            <div class="mobile-menu-btn">
+                
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-menu">
+        <div class="close-btn">
+            <i class="fas fa-times"></i>
+        </div>
+        <a href="#about">About</a>
+        <a href="#plans">Plans</a>
+        <a href="#how-it-works">How It Works</a>
+        <div class="language-switcher">
+            <select id="mobile-language-select">
+                {% comment %} <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="de">Deutsch</option>
+                <option value="zh">中文</option> {% endcomment %}
+            </select>
+        </div>
+        <div class="auth-buttons">
+            <a href="{% url 'register' %}" class="btn btn-outline-gold">Register</a>
+            <a href="{% url 'login' %}" class="btn btn-gold">Login</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="gold-text">Invest in <span class="typed"></span></h1>
+            <p>Join our platform and start earning up to 30% monthly returns through our secure investment plans</p>
+            <div class="cta-buttons">
+                <a href="{% url 'register' %}" class="btn btn-gold btn-lg">Get Started</a>
+                <a href="#plans" class="btn btn-outline-gold btn-lg">View Plans</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="gold-particles"></div>
+</header>
+
+<section id="about" class="section about-section">
+    <div class="container">
+        <h2 class="section-title">About <span class="gold-text">Golden Crypto</span></h2>
+        <div class="about-content">
+            <div class="about-text">
+                <p>Golden Crypto Investments is a premier platform for cryptocurrency and traditional asset investments. We combine the power of blockchain technology with proven investment strategies to deliver exceptional returns to our clients.</p>
+                <p>Our team of financial experts and blockchain developers have created a system that allows you to earn passive income through our carefully crafted investment plans and point mining system.</p>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number gold-text" data-count="5000">0</div>
+                        <div class="stat-label">Active Investors</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number gold-text" data-count="28.5">0</div>
+                        <div class="stat-label">Average Monthly Return</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number gold-text" data-count="15">0</div>
+                        <div class="stat-label">Countries</div>
+                    </div>
+                </div>
+            </div>
+            <div class="about-image">
+                <img src="{% static 'images/about-crypto.png' %}" alt="About Golden Crypto">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="plans" class="section plans-section">
+    <div class="container">
+        <h2 class="section-title">Investment <span class="gold-text">Plans</span></h2>
+        <p class="section-subtitle">Choose the plan that fits your financial goals</p>
+        
+        <div class="plans-grid">
+            {% for plan in plans %}
+            <div class="plan-card">
+                <div class="plan-header">
+                    <h3>{{ plan.name }}</h3>
+                    <div class="plan-price gold-text">${{ plan.min_amount }}+</div>
+                </div>
+                <div class="plan-features">
+                    <div class="feature">
+                        <i class="fas fa-check gold-text"></i>
+                        <span>{{ plan.daily_percentage }}% Daily Interest</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check gold-text"></i>
+                        <span>{{ plan.mining_points_rate }} Mining Points per $</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check gold-text"></i>
+                        <span>28 Days Investment Cycle</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-check gold-text"></i>
+                        <span>Multiple Withdrawal Options</span>
+                    </div>
+                </div>
+                <a href="{% url 'register' %}" class="btn btn-gold">Invest Now</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section id="how-it-works" class="section how-it-works-section">
+    <div class="container">
+        <h2 class="section-title">How It <span class="gold-text">Works</span></h2>
+        
+        <div class="steps">
+            <div class="step">
+                <div class="step-number gold-bg">1</div>
+                <div class="step-content">
+                    <h3>Register an Account</h3>
+                    <p>Create your free account in just a few minutes. No complicated verification needed to get started.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number gold-bg">2</div>
+                <div class="step-content">
+                    <h3>Fund Your Wallet</h3>
+                    <p>Deposit funds using any of our supported payment methods including USDT, BTC, ETH and more.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number gold-bg">3</div>
+                <div class="step-content">
+                    <h3>Choose a Plan</h3>
+                    <p>Select from our range of investment plans starting from just $500.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number gold-bg">4</div>
+                <div class="step-content">
+                    <h3>Earn Daily Returns</h3>
+                    <p>Watch your investment grow with daily interest payments and mining points accumulation.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number gold-bg">5</div>
+                <div class="step-content">
+                    <h3>Withdraw Profits</h3>
+                    <p>Withdraw your earnings after each 28-day cycle or reinvest for compound growth.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section testimonials-section">
+    <div class="container">
+        <h2 class="section-title">Success <span class="gold-text">Stories</span></h2>
+        <p class="section-subtitle">What our investors say about us</p>
+        
+        <div class="testimonials">
+            <div class="testimonial">
+                <div class="testimonial-content">
+                    <div class="quote-icon gold-text">
+                        <i class="fas fa-quote-left"></i>
+                    </div>
+                    <p>I started with the Bronze plan and within 3 months I've upgraded to Diamond. The returns are consistent and withdrawals are processed quickly.</p>
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-image">
+                        <img src="{% static 'images/user1.png' %}" alt="Sarah J.">
+                    </div>
+                    <div class="author-info">
+                        <h4>Sarah J.</h4>
+                        <div class="author-plan gold-text">Diamond Investor</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="testimonial">
+                <div class="testimonial-content">
+                    <div class="quote-icon gold-text">
+                        <i class="fas fa-quote-left"></i>
+                    </div>
+                    <p>The mining points system is a game changer. It adds an extra 10-15% to my monthly earnings. Highly recommend Golden Crypto!</p>
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-image">
+                        <img src="{% static 'images/user2.png' %}" alt="Michael T.">
+                    </div>
+                    <div class="author-info">
+                        <h4>Michael T.</h4>
+                        <div class="author-plan gold-text">Gold Investor</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section cta-section">
+    <div class="container">
+        <div class="cta-box gold-gradient">
+            <h2>Ready to Start Your Investment Journey?</h2>
+            <p>Join thousands of investors earning passive income with Golden Crypto</p>
+            <div class="cta-buttons">
+                <a href="{% url 'register' %}" class="btn btn-dark">Register Now</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-light">Login</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="logo">
+                    <span class="gold-text">Golden</span>Crypto
+                </div>
+                <p>Secure. Profitable. Reliable.</p>
+                <div class="social-links">
+                    {% comment %} <a href="#"><i class="fab fa-telegram gold-text"></i></a>
+                    <a href="#"><i class="fab fa-twitter gold-text"></i></a>
+                    <a href="#"><i class="fab fa-instagram gold-text"></i></a> {% endcomment %}
+                </div>
+            </div>
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#plans">Investment Plans</a></li>
+                    <li><a href="#how-it-works">How It Works</a></li>
+                    <li><a href="{% url 'faq' %}">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h3>Contact Us</h3>
+                <ul>
+                    <li><i class="fas fa-envelope gold-text"></i> support@goldencrypto.com</li>
+                    <li><i class="fas fa-phone gold-text"></i> +1 (555) 123-4567</li>
+                    <li><i class="fas fa-map-marker-alt gold-text"></i> 123 Crypto Street, Digital City</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 Golden Crypto Investments. All rights reserved.</p>
+            <div class="legal-links">
+                <a href="{% url 'terms' %}">Terms of Service</a> | 
+                <a href="{% url 'privacy' %}">Privacy Policy</a> |
+            </div>
+        </div>
+    </div>
+</footer>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
+<script>
+    // Preloader
+    window.addEventListener('load', function() {
+        document.querySelector('.preloader').style.opacity = '0';
+        setTimeout(function() {
+            document.querySelector('.preloader').style.display = 'none';
+        }, 500);
+    });
+
+    // Typed.js animation
+    new Typed('.typed', {
+        strings: ['Crypto', 'Wealth', 'Freedom', 'The Future'],
+        typeSpeed: 100,
+        backSpeed: 50,
+        loop: true
+    });
+
+    // Counter animation
+    const counters = document.querySelectorAll('.stat-number');
+    const speed = 200;
+    
+    function animateCounters() {
+        counters.forEach(counter => {
+            const target = +counter.getAttribute('data-count');
+            const count = +counter.innerText;
+            const increment = target / speed;
+            
+            if (count < target) {
+                counter.innerText = Math.ceil(count + increment);
+                setTimeout(animateCounters, 1);
+            } else {
+                counter.innerText = target;
+            }
+        });
+    }
+    
+    // Start counter animation when section is in view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounters();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    document.querySelectorAll('.stat-item').forEach(item => {
+        observer.observe(item);
+    });
+
+    // Mobile menu toggle
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const closeBtn = document.querySelector('.mobile-menu .close-btn');
+    
+    menuBtn.addEventListener('click', function() {
+        mobileMenu.style.transform = 'translateX(0)';
+    });
+    
+    closeBtn.addEventListener('click', function() {
+        mobileMenu.style.transform = 'translateX(100%)';
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!mobileMenu.contains(e.target) && e.target !== menuBtn) {
+            mobileMenu.style.transform = 'translateX(100%)';
+        }
+    });
+
+    // Language switcher
+    const languageSelect = document.getElementById('language-select');
+    const mobileLanguageSelect = document.getElementById('mobile-language-select');
+    
+    languageSelect.addEventListener('change', function() {
+        // In a real app, this would change the language
+        console.log('Language changed to:', this.value);
+    });
+    
+    mobileLanguageSelect.addEventListener('change', function() {
+        // In a real app, this would change the language
+        console.log('Language changed to:', this.value);
+    });
+
+    // Gold particles animation
+    const goldParticles = document.querySelector('.gold-particles');
+    
+    for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'gold-particle';
+        
+        // Random properties
+        const size = Math.random() * 5 + 2;
+        const posX = Math.random() * 100;
+        const posY = Math.random() * 100;
+        const delay = Math.random() * 5;
+        const duration = Math.random() * 10 + 10;
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${posX}%`;
+        particle.style.top = `${posY}%`;
+        particle.style.animationDelay = `${delay}s`;
+        particle.style.animationDuration = `${duration}s`;
+        
+        goldParticles.appendChild(particle);
+    }
+
+    // Scroll animations
+    const animateOnScroll = function() {
+        const elements = document.querySelectorAll('.plan-card, .step, .testimonial');
+        
+        elements.forEach(element => {
+            const elementPosition = element.getBoundingClientRect().top;
+            const screenPosition = window.innerHeight / 1.2;
+            
+            if (elementPosition < screenPosition) {
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            }
+        });
+    };
+    
+    // Set initial state
+    document.querySelectorAll('.plan-card, .step, .testimonial').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = 'all 0.5s ease';
+    });
+    
+    window.addEventListener('scroll', animateOnScroll);
+    animateOnScroll(); // Run once on load
+</script>
+{% endblock %}

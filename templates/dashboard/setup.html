@@ -1,0 +1,37 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="dashboard-card">
+  <div class="card-header">
+    <h3>Enable 2FA</h3>
+  </div>
+  <div class="modal-body text-center">
+    <img src="{{ qr_code_url }}" alt="QR Code" class="qr-code img-fluid mb-4" style="max-width: 200px; border: 2px solid #ffd700; padding: 10px;">
+    <p class="mb-3">Scan this with <strong>Google Authenticator</strong> or <strong>Authy</strong>:</p>
+    <div class="form-group">
+      <input type="text" value="{{ secret_key }}" id="secret-key" class="form-control text-center mb-3" readonly>
+      <button onclick="copySecret()" class="btn btn-outline-gold btn-sm">
+        <i class="fas fa-copy"></i> Copy Key
+      </button>
+    </div>
+    <form method="post" class="mt-4">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="id_token">Verify Token</label>
+        <input type="number" name="token" autofocus class="form-control" placeholder="000000">
+      </div>
+      <button type="submit" class="btn btn-gold btn-block">Verify</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function copySecret() {
+    const secret = document.getElementById('secret-key');
+    secret.select();
+    document.execCommand('copy');
+    alert("Secret key copied!");
+  }
+</script>
+{% endblock %}

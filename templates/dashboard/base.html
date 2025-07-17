@@ -1,0 +1,287 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Golden Crypto Investments</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+
+    
+
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <button class="mobile-menu-btn" id="mobile-menu-btn">
+
+        <i class="fas fa-bars"></i>
+
+    </button>
+
+    <div class="dashboard-sidebar" id="dashboard-sidebar">
+
+        <button class="close-sidebar-btn" id="close-sidebar-btn">
+
+            <i class="fas fa-times"></i>
+
+        </button>
+
+        <div class="sidebar-header">
+
+            <div class="user-profile">
+
+                {% if user.profile_pic %}
+                <img src="{{ user.profile_pic.url }}?{% now 'U' %}{% if request.session.profile_pic_timestamp %}_{{ request.session.profile_pic_timestamp }}{% endif %}" alt="{{ user.username }}">
+                {% else %}
+                <img src="{% static 'images/default-profile.png' %}?{% now 'U' %}" alt="{{ user.username }}">
+                {% endif %}
+
+                <div class="user-info">
+
+                    <h4>{{ user.username }}</h4>
+
+                    <div class="user-plan gold-text">
+
+                        {% if user.total_invested >= 10000 %}Diamond
+
+                        {% elif user.total_invested >= 5000 %}Gold
+
+                        {% elif user.total_invested >= 1000 %}Silver
+
+                        {% elif user.total_invested >= 500 %}Bronze
+
+                        {% else %}Starter{% endif %} Investor
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        
+
+        <nav class="sidebar-nav">
+
+            <a href="{% url 'dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+
+                <i class="fas fa-home"></i>
+
+                <span>Dashboard</span>
+
+            </a>
+
+            <a href="{% url 'kyc' %}" class="nav-item {% if request.resolver_match.url_name == 'kyc' %}active{% endif %}">
+
+                <i class="fas fa-id-card"></i>
+
+                <span>KYC Verification</span>
+
+            </a>
+
+            <a href="{% url 'transactions' %}" class="nav-item {% if request.resolver_match.url_name == 'transactions' %}active{% endif %}">
+
+                <i class="fas fa-exchange-alt"></i>
+
+                <span>Transactions</span>
+
+            </a>
+
+            <a href="{% url 'fund' %}" class="nav-item {% if request.resolver_match.url_name == 'fund' %}active{% endif %}">
+
+                <i class="fas fa-credit-card"></i>
+
+                <span>Fund Account</span>
+
+            </a>
+
+            <a href="{% url 'withdraw' %}" class="nav-item {% if request.resolver_match.url_name == 'withdraw' %}active{% endif %}">
+
+                <i class="fas fa-wallet"></i>
+
+                <span>Withdraw</span>
+
+            </a>
+
+            <a href="{% url 'invest' %}" class="nav-item {% if request.resolver_match.url_name == 'invest' %}active{% endif %}">
+
+                <i class="fas fa-chart-line"></i>
+
+                <span>Invest</span>
+
+            </a>
+
+            <a href="{% url 'profile' %}" class="nav-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+
+                <i class="fas fa-user"></i>
+
+                <span>Profile</span>
+
+            </a>
+
+            
+
+            
+
+            
+
+            
+
+            <a href="{% url 'settings' %}" class="nav-item {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+
+                <i class="fas fa-cog"></i>
+
+                <span>Settings</span>
+
+            </a>
+
+            <a href="{% url 'logout' %}" class="nav-item">
+
+                <i class="fas fa-sign-out-alt"></i>
+
+                <span>Logout</span>
+
+            </a>
+
+        </nav>
+
+    </div>
+
+    
+
+    <div class="dashboard-main" id="dashboard-main">
+
+        <header class="dashboard-header">
+
+            <div class="header-title">
+
+                {% block dashboard_title %}{% endblock %}
+
+            </div>
+
+            <div class="header-actions">
+
+                <div class="notifications">
+
+                    {% comment %} <i class="fas fa-bell"></i>
+
+                    <span class="notification-count">3</span> {% endcomment %}
+
+                </div>
+
+            </div>
+
+        </header>
+
+        
+
+        <main class="dashboard-content">
+
+            {% block dashboard_content %}{% endblock %}
+
+        </main>
+
+    </div>
+
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/dashb.js' %}"></script>
+{% block scripts %}
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+
+    const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+
+    const dashboardSidebar = document.getElementById('dashboard-sidebar');
+
+    const dashboardMain = document.getElementById('dashboard-main');
+
+    
+
+    // Create overlay element
+
+    const overlay = document.createElement('div');
+
+    overlay.className = 'sidebar-overlay';
+
+    document.body.appendChild(overlay);
+
+    
+
+    // Toggle sidebar
+
+    function toggleSidebar() {
+
+        dashboardSidebar.classList.toggle('active');
+
+        overlay.classList.toggle('active');
+
+    }
+
+    
+
+    // Open sidebar
+
+    mobileMenuBtn.addEventListener('click', toggleSidebar);
+
+    
+
+    // Close sidebar
+
+    closeSidebarBtn.addEventListener('click', toggleSidebar);
+
+    
+
+    // Close sidebar when clicking outside
+
+    overlay.addEventListener('click', toggleSidebar);
+
+    
+
+    // Close sidebar when clicking on a nav item (optional)
+
+    const navItems = document.querySelectorAll('.nav-item');
+
+    navItems.forEach(item => {
+
+        item.addEventListener('click', function() {
+
+            if (window.innerWidth <= 768) {
+
+                toggleSidebar();
+
+            }
+
+        });
+
+    });
+
+});
+
+
+</script>
+
+{% endblock %}
+
+</body>
+
+</html>

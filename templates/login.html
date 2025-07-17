@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="logo">
+                <span class="gold-text">Golden</span>Crypto
+            </div>
+            <h2>Welcome Back</h2>
+            <p>Login to access your investment dashboard</p>
+        </div>
+
+        <form method="POST" class="auth-form" action="{% url 'login' %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ form.non_field_errors|first }}
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="id_username">Username</label>
+                {{ form.username }}
+                <i class="fas fa-user input-icon"></i>
+                {% if form.username.errors %}
+                <div class="error-text">{{ form.username.errors|first }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                {{ form.password }}
+                <i class="fas fa-lock input-icon"></i>
+                {% if form.password.errors %}
+                <div class="error-text">{{ form.password.errors|first }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-options">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+                <a href="{% url 'password_reset' %}" class="forgot-password">Forgot password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-gold btn-block">Login</button>
+
+            <div class="auth-footer">
+                Don't have an account? <a href="{% url 'register' %}" class="gold-text">Register</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="auth-particles">
+        {% for i in '0123456789'|make_list %}
+        <div class="particle" style="
+            top: {{ forloop.counter|add:forloop.counter }}%;
+            left: {{ forloop.counter|add:10 }}%;
+            animation-delay: {{ forloop.counter }}s;
+            width: {{ forloop.counter|add:2 }}px;
+            height: {{ forloop.counter|add:2 }}px;
+        "></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Preloader handling
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            const preloader = document.querySelector('.preloader');
+            if (preloader) {
+                preloader.style.opacity = '0';
+                setTimeout(function() {
+                    preloader.style.display = 'none';
+                }, 500);
+            }
+        }, 300);
+    });
+
+    // Particle animation
+    document.querySelectorAll('.particle').forEach(particle => {
+        particle.style.animation = `float ${5 + Math.random() * 10}s linear infinite`;
+    });
+</script>
+{% endblock %}

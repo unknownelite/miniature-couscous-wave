@@ -1,0 +1,678 @@
+{% extends 'dashboard/base.html' %}
+{% block body_class %}dashboard-page{% endblock %}
+{% load static %}
+{% block dashboard_title %}Dashboard Overview{% endblock %}
+
+{% block dashboard_content %}
+{% block css %}
+<style>
+/* Mobile Responsive Styles (320px and up) */
+@media only screen and (max-width: 400px) {
+    /* General Layout Adjustments */
+    .dashboard-content {
+        padding: 10px;
+    }
+    
+    /* Welcome Banner */
+    .welcome-banner {
+        flex-direction: column;
+        padding: 15px;
+        text-align: center;
+    }
+    .welcome-content {
+        margin-bottom: 15px;
+    }
+    .welcome-icon {
+        font-size: 2rem;
+        margin-left: 0;
+    }
+    
+    /* Balance Cards */
+    .balance-cards {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    .balance-card {
+        padding: 15px;
+    }
+    .balance-amount {
+        font-size: 1.5rem;
+    }
+    .balance-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .balance-actions .btn {
+        width: 95%;
+    }
+    
+    /* Dashboard Rows */
+    .dashboard-row {
+        flex-direction: column;
+    }
+    .dashboard-card {
+        width: 95%;
+        margin-bottom: 20px;
+    }
+    
+    /* Quick Actions */
+    .actions-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .action-card {
+        padding: 10px;
+    }
+    
+    /* Investment Items */
+    .investment-item {
+        flex-direction: column;
+        padding: 15px;
+    }
+    .investment-info {
+        margin-bottom: 10px;
+    }
+    .investment-details {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    
+    /* Transaction Items */
+    .transaction-item {
+        padding: 10px;
+    }
+    .transaction-details {
+        flex-direction: column;
+        gap: 5px;
+    }
+    .transaction-info h5 {
+        font-size: 0.9rem;
+    }
+    .transaction-amount {
+        font-size: 0.9rem;
+    }
+    
+    /* Plan Status */
+    .plan-status {
+        padding: 15px;
+    }
+    .plan-tier {
+        flex-direction: column;
+        text-align: center;
+    }
+    .tier-icon {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    .tier-benefits ul {
+        padding-left: 20px;
+    }
+    
+    /* Chart Container */
+    .chart-container {
+        height: 250px;
+    }
+    .time-filters {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    .time-filter {
+        padding: 3px 8px;
+        font-size: 0.8rem;
+    }
+    
+    /* Empty States */
+    .empty-state {
+        padding: 20px 10px;
+    }
+    
+    /* Hide less important elements on mobile */
+    .growth-text, .progress-text span:first-child {
+        display: none;
+    }
+}
+
+/* Very Small Devices (320px and below) */
+@media only screen and (max-width: 320px) {
+    /* Adjust font sizes further */
+    h2 {
+        font-size: 1.3rem;
+    }
+    h3 {
+        font-size: 1.1rem;
+    }
+    h4 {
+        font-size: 1rem;
+    }
+    
+    /* Balance Cards */
+    .balance-header h4 {
+        font-size: 0.9rem;
+    }
+    .balance-amount {
+        font-size: 1.3rem;
+    }
+    
+    /* Quick Actions */
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Transaction Items */
+    .transaction-status {
+        display: none;
+    }
+    
+    /* Investment Details */
+    .investment-details .detail span:first-child {
+        font-size: 0.8rem;
+    }
+}
+
+/* Utility Classes for Mobile */
+@media only screen and (max-width: 767px) {
+    .mobile-stack {
+        flex-direction: column !important;
+    }
+    .mobile-full-width {
+        width: 100% !important;
+    }
+    .mobile-text-center {
+        text-align: center !important;
+    }
+    .mobile-hide {
+        display: none !important;
+    }
+    .mobile-mt-10 {
+        margin-top: 10px !important;
+    }
+    .mobile-mb-10 {
+        margin-bottom: 10px !important;
+    }
+}
+<style>
+@media (max-width: 564px) {
+    .dashboard-content {
+        padding: 15px;
+    }
+    
+    .welcome-banner {
+        margin-top: 60px; /* Space for menu button */
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .balance-cards {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .balance-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .balance-actions .btn {
+        width: 100%;
+    }
+    
+    .dashboard-row {
+        flex-direction: column;
+    }
+    
+    .dashboard-card {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+<div class="welcome-banner gold-gradient">
+    <div class="welcome-content">
+        <h2>Welcome back, {{ user.first_name|default:user.username }}!</h2>
+        <p>Your investment journey continues. Here's your current status.</p>
+    </div>
+    <div class="welcome-icon">
+        <i class="fas fa-coins"></i>
+    </div>
+</div>
+
+<div class="balance-cards">
+    <div class="balance-card">
+        <div class="balance-header">
+            <h4>Available Balance</h4>
+            <i class="fas fa-wallet"></i>
+        </div>
+        <div class="balance-amount gold-text">${{ user.available_balance|floatformat:2 }}</div>
+        <div class="balance-actions">
+            <a href="{% url 'invest' %}" class="btn btn-outline-gold btn-sm">Invest</a>
+            <a href="{% url 'withdraw' %}" class="btn btn-outline-gold btn-sm">Withdraw</a>
+        </div>
+    </div>
+    
+    <div class="balance-card">
+        <div class="balance-header">
+            <h4>Invested Amount</h4>
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="balance-amount gold-text">${{ user.total_invested|floatformat:2 }}</div>
+        <div class="balance-growth">
+            <span class="growth-percent positive">
+                <i class="fas fa-arrow-up"></i> {{ growth_percentage }}%
+            </span>
+            <span class="growth-text">since last month</span>
+        </div>
+    </div>
+    
+    <div class="balance-card">
+        <div class="balance-header">
+            <h4>Mining Points</h4>
+            <i class="fas fa-digging"></i>
+        </div>
+        <div class="balance-amount gold-text">{{ user.mining_points }}</div>
+        <div class="balance-details">
+            <small>Next conversion: {{ next_conversion_date|date:"M d, Y" }}</small>
+            <small>Estimated value: ${{ mining_value|floatformat:2 }}</small>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-row">
+    {% comment %} <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Investment Growth</h3>
+            <div class="time-filters">
+                <button class="time-filter active">1M</button>
+                <button class="time-filter">3M</button>
+                <button class="time-filter">6M</button>
+                <button class="time-filter">1Y</button>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="growthChart"></canvas>
+        </div>
+    </div> {% endcomment %}
+    
+    <div class="dashboard-card quick-actions">
+        <div class="card-header">
+            <h3>Quick Actions</h3>
+        </div>
+        <div class="actions-grid">
+            <a href="{% url 'fund' %}" class="action-card">
+                <div class="action-icon gold-bg">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="action-text">Fund Account</div>
+            </a>
+            <a href="{% url 'invest' %}" class="action-card">
+                <div class="action-icon gold-bg">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <div class="action-text">Invest Now</div>
+            </a>
+            <a href="{% url 'withdraw' %}" class="action-card">
+                <div class="action-icon gold-bg">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <div class="action-text">Withdraw</div>
+            </a>
+            <a href="{% url 'transactions' %}" class="action-card">
+                <div class="action-icon gold-bg">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <div class="action-text">Transactions</div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-row">
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Active Investments</h3>
+            <a href="{% url 'invest' %}" class="btn btn-outline-gold btn-sm">View All</a>
+        </div>
+        
+        {% if active_investments %}
+        <div class="investments-list">
+            {% for investment in active_investments %}
+            <div class="investment-item">
+                <div class="investment-info">
+                    <h4>{{ investment.plan.name }}</h4>
+                    <div class="investment-amount">${{ investment.amount|floatformat:2 }}</div>
+                </div>
+                <div class="investment-details">
+                    <div class="detail">
+                        <span>Start Date</span>
+                        <span>{{ investment.date_invested|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="detail">
+                        <span>Daily Profit</span>
+                        <span>${{ investment.daily_interest|floatformat:2 }}</span>
+                    </div>
+                </div>
+                <div class="investment-progress">
+                    <div class="progress-bar">
+                        <div class="progress" style="width: {{ investment.progress }}%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>Cycle Progress</span>
+                        <span>{{ investment.progress }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-chart-pie"></i>
+            <p>You don't have any active investments yet</p>
+            <a href="{% url 'invest' %}" class="btn btn-gold">Start Investing</a>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3>Recent Transactions</h3>
+            <a href="{% url 'transactions' %}" class="btn btn-outline-gold btn-sm">View All</a>
+        </div>
+        
+        <div class="transactions-list">
+            {% for transaction in recent_transactions %}
+            <div class="transaction-item">
+                <div class="transaction-icon">
+                    {% if transaction.transaction_type == 'deposit' %}
+                    <i class="fas fa-arrow-down positive"></i>
+                    {% elif transaction.transaction_type == 'withdrawal' %}
+                    <i class="fas fa-arrow-up negative"></i>
+                    {% else %}
+                    <i class="fas fa-coins gold-text"></i>
+                    {% endif %}
+                </div>
+                <div class="transaction-details">
+                    <div class="transaction-info">
+                        <h5>{{ transaction.get_transaction_type_display }}</h5>
+                        <span class="transaction-date">{{ transaction.date|date:"M d, H:i" }}</span>
+                    </div>
+                    <div class="transaction-amount {% if transaction.transaction_type == 'deposit' or transaction.transaction_type == 'interest' or transaction.transaction_type == 'mining' %}positive{% else %}negative{% endif %}">
+                        {% if transaction.transaction_type == 'deposit' or transaction.transaction_type == 'interest' or transaction.transaction_type == 'mining' %}+{% else %}-{% endif %}${{ transaction.amount|floatformat:2 }}
+                    </div>
+                </div>
+                <div class="transaction-status">
+                    <span class="status-badge status-{{ transaction.status }}">
+                        {{ transaction.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <i class="fas fa-exchange-alt"></i>
+                <p>No transactions yet</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-card">
+    <div class="card-header">
+        <h3>Your Investment Plan</h3>
+    </div>
+    
+    <div class="plan-status">
+        {% if user.total_invested >= 10000 %}
+        <div class="plan-tier diamond">
+            <div class="tier-icon">
+                <i class="fas fa-gem"></i>
+            </div>
+            <div class="tier-info">
+                <h4>Diamond Investor</h4>
+                <p>You qualify for our highest tier benefits</p>
+            </div>
+        </div>
+        {% elif user.total_invested >= 5000 %}
+        <div class="plan-tier gold">
+            <div class="tier-icon">
+                <i class="fas fa-medal"></i>
+            </div>
+            <div class="tier-info">
+                <h4>Gold Investor</h4>
+                <p>You're eligible for premium benefits</p>
+            </div>
+        </div>
+        {% elif user.total_invested >= 1000 %}
+        <div class="plan-tier silver">
+            <div class="tier-icon">
+                <i class="fas fa-award"></i>
+            </div>
+            <div class="tier-info">
+                <h4>Silver Investor</h4>
+                <p>You're on your way to premium status</p>
+            </div>
+        </div>
+        {% elif user.total_invested >= 500 %}
+        <div class="plan-tier bronze">
+            <div class="tier-icon">
+                <i class="fas fa-certificate"></i>
+            </div>
+            <div class="tier-info">
+                <h4>Bronze Investor</h4>
+                <p>Great start to your investment journey</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="plan-tier starter">
+            <div class="tier-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="tier-info">
+                <h4>Starter Investor</h4>
+                <p>Begin your investment journey today</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="plan-progress">
+            <div class="progress-text">
+                <span>To Next Tier:</span>
+                <span>${{ next_tier_amount|floatformat:2 }} needed</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress" style="width: {{ tier_progress }}%"></div>
+            </div>
+            <div class="tier-benefits">
+                <h5>Current Benefits:</h5>
+                <ul>
+                    {% if user.total_invested >= 10000 %}
+                    <li><i class="fas fa-check gold-text"></i> 2.5% daily interest</li>
+                    <li><i class="fas fa-check gold-text"></i> 25 mining points per $</li>
+                    <li><i class="fas fa-check gold-text"></i> Priority withdrawals</li>
+                    <li><i class="fas fa-check gold-text"></i> Personal account manager</li>
+                    {% elif user.total_invested >= 5000 %}
+                    <li><i class="fas fa-check gold-text"></i> 2.0% daily interest</li>
+                    <li><i class="fas fa-check gold-text"></i> 20 mining points per $</li>
+                    <li><i class="fas fa-check gold-text"></i> Faster withdrawals</li>
+                    {% elif user.total_invested >= 1000 %}
+                    <li><i class="fas fa-check gold-text"></i> 1.5% daily interest</li>
+                    <li><i class="fas fa-check gold-text"></i> 15 mining points per $</li>
+                    {% elif user.total_invested >= 500 %}
+                    <li><i class="fas fa-check gold-text"></i> 1.0% daily interest</li>
+                    <li><i class="fas fa-check gold-text"></i> 10 mining points per $</li>
+                    {% else %}
+                    <li><i class="fas fa-check gold-text"></i> 0.5% daily interest</li>
+                    <li><i class="fas fa-check gold-text"></i> 5 mining points per $</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'js/chart.min.js' %}"></script>
+
+<script>
+    // Growth Chart
+    const growthCtx = document.getElementById('growthChart').getContext('2d');
+    const growthChart = new Chart(growthCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            datasets: [{
+                label: 'Investment Value',
+                data: [500, 800, 1200, 1500, 2000, 2500, 3000],
+                borderColor: '#ffd700',
+                backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                tension: 0.4,
+                fill: true,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {
+                        label: function(context) {
+                            return '$' + context.parsed.y.toFixed(2);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#aaa',
+                        callback: function(value) {
+                            return '$' + value;
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    ticks: {
+                        color: '#aaa'
+                    }
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            }
+        }
+    });
+
+    // Time filter buttons
+    const timeFilters = document.querySelectorAll('.time-filter');
+    timeFilters.forEach(filter => {
+        filter.addEventListener('click', function() {
+            timeFilters.forEach(f => f.classList.remove('active'));
+            this.classList.add('active');
+            
+            // In a real app, this would update the chart data
+            // For demo purposes, we'll just animate the chart
+            growthChart.data.datasets[0].data = getRandomData();
+            growthChart.update();
+        });
+    });
+
+    function getRandomData() {
+        const base = Math.random() * 1000 + 500;
+        return [
+            Math.round(base),
+            Math.round(base * 1.3),
+            Math.round(base * 1.7),
+            Math.round(base * 2.1),
+            Math.round(base * 2.5),
+            Math.round(base * 3.0),
+            Math.round(base * 3.5)
+        ];
+    }
+
+    // Animate numbers on the dashboard
+    function animateValue(id, start, end, duration) {
+        const obj = document.getElementById(id);
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            obj.innerHTML = "$" + Math.floor(progress * (end - start) + start).toLocaleString();
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+
+    // Animate balance if it's a fresh page load
+    if (!sessionStorage.getItem('dashboardVisited')) {
+        animateValue('available-balance', 0, {{ user.available_balance }}, 1000);
+        animateValue('invested-amount', 0, {{ user.total_invested }}, 1000);
+        sessionStorage.setItem('dashboardVisited', 'true');
+    }
+
+    // Preloader
+    window.addEventListener('load', function() {
+        document.querySelector('.preloader').style.opacity = '0';
+        setTimeout(function() {
+            document.querySelector('.preloader').style.display = 'none';
+        }, 500);
+    });
+
+    // Typed.js animation
+    new Typed('.typed', {
+        strings: ['Crypto', 'Wealth', 'Freedom', 'The Future'],
+        typeSpeed: 100,
+        backSpeed: 50,
+        loop: true
+    });
+
+    // Counter animation
+    const counters = document.querySelectorAll('.stat-number');
+    const speed = 200;
+    
+    function animateCounters() {
+        counters.forEach(counter => {
+            const target = +counter.getAttribute('data-count');
+            const count = +counter.innerText;
+            const increment = target / speed;
+            
+            if (count < target) {
+                counter.innerText = Math.ceil(count + increment);
+                setTimeout(animateCounters, 1);
+            } else {
+                counter.innerText = target;
+            }
+        });
+    }
+    
+    // Start counter animation when section is in view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounters();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    document.querySelectorAll('.stat-item').forEach(item => {
+        observer.observe(item);
+    });
+</script>
+{% endblock %}

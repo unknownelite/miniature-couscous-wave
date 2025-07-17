@@ -1,0 +1,25 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+<h2>Withdrawal Request Received</h2>
+<p>Hello {{ user.username }},</p>
+
+<p>We've received your withdrawal request for <strong>${{ amount }}</strong> via {{ method }}.</p>
+
+<div class="details">
+    <p><strong>Details:</strong></p>
+    <ul>
+        <li>Amount: ${{ amount }}</li>
+        <li>Fee: ${{ fee }}</li>
+        <li>Net Amount: ${{ net_amount }}</li>
+        <li>Status: Pending Approval</li>
+    </ul>
+</div>
+
+<p>Please allow 1-3 business days for processing. We'll notify you once your withdrawal has been approved and processed.</p>
+
+<p>If you didn't initiate this request, please contact our support team immediately.</p>
+
+<p>Best regards,<br>
+The Golden Crypto Team</p>
+{% endblock %}

@@ -1,0 +1,295 @@
+{% extends 'dashboard/base.html' %}
+{% block body_class %}dashboard-page{% endblock %}
+{% load static %}
+
+{% block dashboard_title %}KYC Verification{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-card">
+    <div class="card-header">
+        <h3>Identity Verification</h3>
+    </div>
+    
+    {% if kyc.status == 'approved' %}
+    <div class="kyc-status approved">
+        <i class="fas fa-check-circle"></i>
+        <h4>Your identity has been verified</h4>
+        <p>Thank you for completing the KYC process. Your account is now fully verified.</p>
+    </div>
+    
+    <div class="kyc-details">
+        <div class="detail-item">
+            <span>Document Type</span>
+            <span>{{ kyc.get_document_type_display }}</span>
+        </div>
+        <div class="detail-item">
+            <span>Document Number</span>
+            <span>{{ kyc.document_number }}</span>
+        </div>
+        <div class="detail-item">
+            <span>Submitted On</span>
+            <span>{{ kyc.submitted_at|date:"M d, Y" }}</span>
+        </div>
+        <div class="detail-item">
+            <span>Approved On</span>
+            <span>{{ kyc.processed_at|date:"M d, Y" }}</span>
+        </div>
+    </div>
+    
+    <div class="document-images">
+        <div class="document-image">
+            <h5>Front Side</h5>
+            <img src="{{ kyc.front_image.url }}" alt="Document Front">
+        </div>
+        {% if kyc.back_image %}
+        <div class="document-image">
+            <h5>Back Side</h5>
+            <img src="{{ kyc.back_image.url }}" alt="Document Back">
+        </div>
+        {% endif %}
+    </div>
+    
+    {% elif kyc.status == 'pending' %}
+    <div class="kyc-status pending">
+        <i class="fas fa-clock"></i>
+        <h4>Your verification is under review</h4>
+        <p>We are currently reviewing your documents. This process usually takes 1-3 business days.</p>
+    </div>
+    
+    <div class="kyc-details">
+        <div class="detail-item">
+            <span>Document Type</span>
+            <span>{{ kyc.get_document_type_display }}</span>
+        </div>
+        <div class="detail-item">
+            <span>Document Number</span>
+            <span>{{ kyc.document_number }}</span>
+        </div>
+        <div class="detail-item">
+            <span>Submitted On</span>
+            <span>{{ kyc.submitted_at|date:"M d, Y" }}</span>
+        </div>
+    </div>
+    
+    <div class="document-images">
+        <div class="document-image">
+            <h5>Front Side</h5>
+            <img src="{{ kyc.front_image.url }}" alt="Document Front">
+        </div>
+        {% if kyc.back_image %}
+        <div class="document-image">
+            <h5>Back Side</h5>
+            <img src="{{ kyc.back_image.url }}" alt="Document Back">
+        </div>
+        {% endif %}
+    </div>
+    
+    {% elif kyc.status == 'rejected' %}
+    <div class="kyc-status rejected">
+        <i class="fas fa-times-circle"></i>
+        <h4>Your verification was rejected</h4>
+        {% if kyc.rejection_reason %}
+        <div class="rejection-reason">
+            <strong>Reason:</strong> {{ kyc.rejection_reason }}
+        </div>
+        {% endif %}
+        <p>Please correct the issues below and submit again.</p>
+    </div>
+    
+    <div class="document-images">
+        <div class="document-image">
+            <h5>Front Side</h5>
+            <img src="{{ kyc.front_image.url }}" alt="Document Front">
+        </div>
+        {% if kyc.back_image %}
+        <div class="document-image">
+            <h5>Back Side</h5>
+            <img src="{{ kyc.back_image.url }}" alt="Document Back">
+        </div>
+        {% endif %}
+    </div>
+    
+    <form method="POST" enctype="multipart/form-data" class="kyc-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Document Type</label>
+            <select name="document_type" class="form-control" required>
+                <option value="">Select Document Type</option>
+                <option value="passport" {% if kyc.document_type == 'passport' %}selected{% endif %}>Passport</option>
+                <option value="driver_license" {% if kyc.document_type == 'driver_license' %}selected{% endif %}>Driver's License</option>
+                <option value="national_id" {% if kyc.document_type == 'national_id' %}selected{% endif %}>National ID Card</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Document Number</label>
+            <input type="text" name="document_number" class="form-control" value="{{ kyc.document_number }}" required>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Front Side of Document</label>
+                <input type="file" name="front_image" class="file-input" id="front-image" accept="image/*">
+                <label for="front-image" class="file-label">Choose New File</label>
+                <div class="file-name" id="front-filename">
+                    {% if kyc.front_image %}Current: {{ kyc.front_image.name|slice:"20:" }}{% endif %}
+                </div>
+                <small class="text-muted">Clear image of the front side of your ID</small>
+            </div>
+            
+            <div class="form-group">
+                <label>Back Side of Document (if applicable)</label>
+                <input type="file" name="back_image" class="file-input" id="back-image" accept="image/*">
+                <label for="back-image" class="file-label">Choose New File</label>
+                <div class="file-name" id="back-filename">
+                    {% if kyc.back_image %}Current: {{ kyc.back_image.name|slice:"20:" }}{% endif %}
+                </div>
+                <small class="text-muted">Clear image of the back side of your ID</small>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Selfie with Document</label>
+            <input type="file" name="selfie" class="file-input" id="selfie-image" accept="image/*">
+            <label for="selfie-image" class="file-label">Choose New File</label>
+            <small class="text-muted">Clear selfie holding your ID (face and ID must be visible)</small>
+        </div>
+        
+        <div class="form-group">
+            <div class="form-check">
+                <input type="checkbox" name="terms" id="terms" class="form-check-input" required>
+                <label for="terms" class="form-check-label">I certify that all information provided is accurate and belongs to me</label>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-gold">Submit Verification</button>
+    </form>
+    
+    {% else %}
+    <div class="kyc-info">
+        <div class="kyc-icon">
+            <i class="fas fa-id-card"></i>
+        </div>
+        <h4>Verify Your Identity</h4>
+        <p>To comply with regulations and ensure the security of all transactions, we require identity verification for all users.</p>
+        <p>Please upload clear images of your government-issued ID and a selfie holding the ID.</p>
+    </div>
+    
+    <form method="POST" enctype="multipart/form-data" class="kyc-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Document Type</label>
+            <select name="document_type" class="form-control" required>
+                <option value="">Select Document Type</option>
+                <option value="passport">Passport</option>
+                <option value="driver_license">Driver's License</option>
+                <option value="national_id">National ID Card</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Document Number</label>
+            <input type="text" name="document_number" class="form-control" required>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Front Side of Document</label>
+                <input type="file" name="front_image" class="file-input" id="front-image" required accept="image/*">
+                <label for="front-image" class="file-label">Choose File</label>
+                <div class="file-name" id="front-filename"></div>
+                <small class="text-muted">Clear image of the front side of your ID</small>
+            </div>
+            
+            <div class="form-group">
+                <label>Back Side of Document (if applicable)</label>
+                <input type="file" name="back_image" class="file-input" id="back-image" accept="image/*">
+                <label for="back-image" class="file-label">Choose File</label>
+                <div class="file-name" id="back-filename"></div>
+                <small class="text-muted">Clear image of the back side of your ID</small>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Selfie with Document</label>
+            <input type="file" name="selfie" class="file-input" id="selfie-image" required accept="image/*">
+            <label for="selfie-image" class="file-label">Choose File</label>
+            <div class="file-name" id="selfie-filename"></div>
+            <small class="text-muted">Clear selfie holding your ID (face and ID must be visible)</small>
+        </div>
+        
+        <div class="form-group">
+            <div class="form-check">
+                <input type="checkbox" name="terms" id="terms" class="form-check-input" required>
+                <label for="terms" class="form-check-label">I certify that all information provided is accurate and belongs to me</label>
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-gold">Submit Verification</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // File input display
+    const frontImage = document.getElementById('front-image');
+    const frontFilename = document.getElementById('front-filename');
+    const backImage = document.getElementById('back-image');
+    const backFilename = document.getElementById('back-filename');
+    const selfieImage = document.getElementById('selfie-image');
+    const selfieFilename = document.getElementById('selfie-filename');
+    
+    frontImage?.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            frontFilename.textContent = this.files[0].name;
+        } else {
+            frontFilename.textContent = '';
+        }
+    });
+    
+    backImage?.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            backFilename.textContent = this.files[0].name;
+        } else {
+            backFilename.textContent = '';
+        }
+    });
+    
+    selfieImage?.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            if (selfieFilename) {
+                selfieFilename.textContent = this.files[0].name;
+            }
+        } else {
+            if (selfieFilename) {
+                selfieFilename.textContent = '';
+            }
+        }
+    });
+    
+    // Preview images before upload (for new KYC submissions)
+    function previewImage(input, previewId) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById(previewId).src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    frontImage?.addEventListener('change', function() {
+        previewImage(this, 'front-preview');
+    });
+    
+    backImage?.addEventListener('change', function() {
+        previewImage(this, 'back-preview');
+    });
+    
+    selfieImage?.addEventListener('change', function() {
+        previewImage(this, 'selfie-preview');
+    });
+</script>
+{% endblock %}

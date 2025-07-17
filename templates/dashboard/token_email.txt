@@ -1,0 +1,9 @@
+Your 2FA Verification Code
+
+Code: {{ token }}
+
+This code will expire in 5 minutes.
+
+If you didn’t request this, please secure your account.
+
+© {% now "Y" %} Your Company.

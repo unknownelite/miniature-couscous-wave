@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="logo">
+                <span class="gold-text">Golden</span>Crypto
+            </div>
+            <h2>Create Account</h2>
+            <p>Start your investment journey today</p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                Please correct the errors below
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="id_username">Username</label>
+                {{ form.username }}
+                <i class="fas fa-user input-icon"></i>
+                {% if form.username.errors %}
+                <div class="error-text">{{ form.username.errors|first }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_email">Email</label>
+                {{ form.email }}
+                <i class="fas fa-envelope input-icon"></i>
+                {% if form.email.errors %}
+                <div class="error-text">{{ form.email.errors|first }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_password1">Password</label>
+                {{ form.password1 }}
+                <i class="fas fa-lock input-icon"></i>
+                {% if form.password1.errors %}
+                <div class="error-text">{{ form.password1.errors|first }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_password2">Confirm Password</label>
+                {{ form.password2 }}
+                <i class="fas fa-lock input-icon"></i>
+                {% if form.password2.errors %}
+                <div class="error-text">{{ form.password2.errors|first }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group terms">
+                <input type="checkbox" id="terms" name="terms" required>
+                <label for="terms">I agree to the <a href="{% url 'terms' %}" class="gold-text">Terms of Service</a> and <a href="{% url 'privacy' %}" class="gold-text">Privacy Policy</a></label>
+            </div>
+
+            <button type="submit" class="btn btn-gold btn-block">Register</button>
+
+            <div class="auth-footer">
+                Already have an account? <a href="{% url 'login' %}?next={{ next }}" class="gold-text">Login</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="auth-particles">
+        {% for i in '0123456789'|make_list %}
+        <div class="particle" style="
+            top: {{ forloop.counter|add:forloop.counter }}%;
+            left: {{ forloop.counter|add:10 }}%;
+            animation-delay: {{ forloop.counter }}s;
+            width: {{ forloop.counter|add:2 }}px;
+            height: {{ forloop.counter|add:2 }}px;
+        "></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Preloader handling
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            const preloader = document.querySelector('.preloader');
+            if (preloader) {
+                preloader.style.opacity = '0';
+                setTimeout(function() {
+                    preloader.style.display = 'none';
+                }, 500);
+            }
+        }, 300);
+    });
+
+    // Particle animation
+    document.querySelectorAll('.particle').forEach(particle => {
+        particle.style.animation = `float ${5 + Math.random() * 10}s linear infinite`;
+    });
+
+    // Password strength indicator
+    const password1 = document.getElementById('id_password1');
+    const password2 = document.getElementById('id_password2');
+    
+    password1.addEventListener('input', function() {
+        const strength = calculatePasswordStrength(this.value);
+        updateStrengthIndicator(strength);
+    });
+    
+    function calculatePasswordStrength(password) {
+        let strength = 0;
+        if (password.length >= 8) strength += 1;
+        if (/[A-Z]/.test(password)) strength += 1;
+        if (/[0-9]/.test(password)) strength += 1;
+        if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+        return strength;
+    }
+    
+    function updateStrengthIndicator(strength) {
+        const strengthText = ['Very Weak', 'Weak', 'Medium', 'Strong', 'Very Strong'][strength];
+        const strengthColor = ['#dc3545', '#ff6b35', '#f7c11e', '#4bb543', '#2e8b57'][strength];
+        
+        let indicator = document.getElementById('password-strength');
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.id = 'password-strength';
+            password1.parentNode.appendChild(indicator);
+        }
+        
+        indicator.innerHTML = `<small>Strength: <span style="color:${strengthColor}">${strengthText}</span></small>`;
+    }
+</script>
+{% endblock %}

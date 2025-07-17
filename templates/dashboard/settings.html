@@ -1,0 +1,294 @@
+{% extends 'dashboard/base.html' %}
+{% block body_class %}dashboard-page{% endblock %}
+{% load static %}
+
+{% block dashboard_title %}Account Settings{% endblock %}
+
+{% block dashboard_content %}
+{% block css%}
+<style>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+
+.modal-container {
+  width: 100%;
+  max-width: 500px;
+  padding: 0 20px;
+}
+
+
+.modal-content {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  border: 1px solid #ffd700;
+  overflow: hidden;
+}
+
+
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #333;
+  position: relative;
+}
+
+.modal-header h4 {
+  color: #ffd700;
+  margin: 0;
+}
+
+.close-modal {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  font-size: 24px;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.close-modal:hover {
+  color: #ffd700;
+}
+.modal-body {
+  padding: 20px;
+}
+
+
+.modal-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #333;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+
+.error-text {
+  color: #ff6b6b;
+  font-size: 14px;
+  margin-top: 5px;
+  display: none;
+}
+.modal-overlay.active {
+        visibility: visible;
+    }
+</style>
+{% endblock%}
+<div class="dashboard-card">
+    <div class="card-header">
+        <h3>Security Settings</h3>
+    </div>
+    
+    <form method="POST" action="{% url 'password_change' %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label>Current Password</label>
+        <input type="password" name="old_password" class="form-control" required>
+    </div>
+    
+    <div class="form-group">
+        <label>New Password</label>
+        <input type="password" name="new_password1" class="form-control" required>
+        <small class="text-muted">Minimum 8 characters, not too common, not entirely numeric</small>
+    </div>
+    
+    <div class="form-group">
+        <label>Confirm New Password</label>
+        <input type="password" name="new_password2" class="form-control" required>
+    </div>
+    
+    <button type="submit" class="btn btn-gold">Change Password</button>
+  </form>
+</div>
+
+<div class="dashboard-card">
+    <div class="card-header">
+        <h3>Account Activity</h3>
+    </div>
+    
+    <div class="activity-list">
+        <div class="activity-item">
+            <div class="activity-icon">
+                <i class="fas fa-sign-in-alt"></i>
+            </div>
+            <div class="activity-details">
+                <h4>Last Login</h4>
+                <p>{{ user.last_login|date:"M d, Y H:i" }} from {{ last_login_ip }}</p>
+            </div>
+        </div>
+        
+        <div class="activity-item">
+            <div class="activity-icon">
+                <i class="fas fa-user-edit"></i>
+            </div>
+            <div class="activity-details">
+                <h4>Profile Updated</h4>
+                <p>{{ user.date_joined|date:"M d, Y H:i" }}</p>
+            </div>
+        </div>
+    </div>
+    
+    {% comment %} <div class="activity-actions">
+        <a href="#" class="btn btn-outline-gold">View All Activity</a>
+    </div> {% endcomment %}
+</div>
+
+<div class="dashboard-card danger-zone">
+    <div class="card-header">
+        <h3>Danger Zone</h3>
+    </div>
+    
+    <div class="danger-item">
+        <div class="danger-info">
+            <h4>Delete Account</h4>
+            <p>Permanently delete your account and all associated data</p>
+        </div>
+        <button class="btn btn-danger" id="delete-account-btn">Delete Account</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-container">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>Confirm Account Deletion</h4>
+        <span class="close-modal">&times;</span>
+      </div>
+      <form id="deleteAccountForm" method="POST">
+        {% csrf_token %}
+        <div class="modal-body">
+          <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+          <p>All your data will be permanently deleted.</p>
+          <div class="form-group">
+            <label>Enter your password to confirm</label>
+            <input type="password" name="password" class="form-control" id="confirm-password" required>
+            <div id="password-error" class="error-text"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          {% comment %} <button type="button" class="btn btn-outline-gold close-modal">Cancel</button> {% endcomment %}
+          <button type="submit" class="btn btn-danger">Delete Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait for all resources (including CSS) to load
+    window.addEventListener('load', function() {
+        // Delete account modal elements
+        const deleteBtn = document.getElementById('delete-account-btn');
+        const modalOverlay = document.getElementById('deleteModal');
+        const modalContent = document.querySelector('.modal-content');
+        const closeModalBtns = document.querySelectorAll('.close-modal');
+        const deleteForm = document.getElementById('deleteAccountForm');
+        const passwordError = document.getElementById('password-error');
+
+        // Debug checks
+        if (!deleteBtn || !modalOverlay) {
+            console.error('Critical elements missing!');
+            return;
+        }
+
+        // Show modal function
+        function showModal() {
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('confirm-password').value = '';
+            passwordError.style.display = 'none';
+        }
+
+        // Hide modal function
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Event listeners
+        deleteBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            showModal();
+        });
+
+        closeModalBtns.forEach(btn => {
+            btn.addEventListener('click', closeModal);
+        });
+
+        modalContent.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+
+        // Form submission
+        deleteForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('confirm-password').value.trim();
+            
+            if (!password) {
+                passwordError.textContent = 'Please enter your password';
+                passwordError.style.display = 'block';
+                return;
+            }
+
+            fetch("{% url 'delete_account' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `password=${encodeURIComponent(password)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Account deleted successfully. You will be logged out.');
+                    window.location.href = "{% url 'logout' %}";
+                } else {
+                    passwordError.textContent = data.error || 'Incorrect password';
+                    passwordError.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                passwordError.textContent = 'An error occurred. Please try again.';
+                passwordError.style.display = 'block';
+            });
+        });
+
+        // Initialize modal as hidden
+        modalOverlay.style.display = 'flex'; // Set display first
+        setTimeout(() => {
+            modalOverlay.classList.remove('active'); // Then hide with opacity/visibility
+        }, 10);
+    });
+});
+</script>
+{% endblock %}
